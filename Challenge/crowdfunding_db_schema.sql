@@ -72,3 +72,55 @@ REFERENCES "subcategory" ("subcategory_id");
 
 ALTER TABLE "backers" ADD CONSTRAINT "fk_backers_cf_id" FOREIGN KEY("cf_id")
 REFERENCES "campaign" ("cf_id")
+
+
+
+
+-- Challenge Bonus queries.
+-- 1. (2.5 pts)
+-- Retrieve all the number of backer_counts in descending order for each `cf_id` for the "live" campaigns. 
+select c.company_name, c.description, c.cf_id, c.backers_count
+from campaign as c 
+where c.outcome = 'live'
+order by  c.backers_count desc 
+
+
+
+-- 2. (2.5 pts)
+-- Using the "backers" table confirm the results in the first query.
+select c.company_name, c.description, b.cf_id, count(b.cf_id) as backers_counts
+from backers as b 
+inner join campaign as c on b.cf_id = c.cf_id 
+where c.outcome = 'live'
+group by b.cf_id, c.company_name, c.description
+order by count(b.cf_id) desc 
+
+
+-- 3. (5 pts)
+-- Create a table that has the first and last name, and email address of each contact.
+-- and the amount left to reach the goal for all "live" projects in descending order. 
+select co.first_name, co.last_name, co.email, (c.goal - c.pledged) as remaining_goal_amount
+into email_contacts_remaining_goal_amount
+from contacts as co 
+inner join campaign as c on co.contact_id = c.contact_id 
+where c.outcome = 'live'
+order by remaining_goal_amount desc 
+
+
+
+-- Check the table
+
+
+-- 4. (5 pts)
+-- Create a table, "email_backers_remaining_goal_amount" that contains the email address of each backer in descending order, 
+-- and has the first and last name of each backer, the cf_id, company name, description, 
+-- end date of the campaign, and the remaining amount of the campaign goal as "Left of Goal". 
+
+select b.email, b.first_name, b.last_name, b.cf_id, c.company_name, c.description, c.end_date, (c.goal - c.pledged) as Left_of_Goal
+into email_backers_remaining_goal_amount
+from backers as b 
+inner join campaign as c on b.cf_id = c.cf_id
+where c.outcome = 'live'
+order by b.email desc 
+
+-- Check the table
